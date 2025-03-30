@@ -54,7 +54,7 @@ cookiecutter path/to/rooflow-cookiecutter
 pip install uv
 
 # Create a new project from this template
-uvx cookiecutter gh:rooai/rooflow-cookiecutter
+uvx cookiecutter gh:hheydaroff/rooflow-cookiecutter
 # or from local template
 uvx cookiecutter path/to/rooflow-cookiecutter
 ```
