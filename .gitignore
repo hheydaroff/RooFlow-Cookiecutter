@@ -48,5 +48,6 @@ yarn-debug.log
 .env.test.local
 .env.production.local
 
-# Explicitly include roo_config directory in the template
-!{{cookiecutter.project_slug}}/roo_config/
+# Do NOT ignore the roo_config directory in the template
+# This ensures you can commit it to your repository
+!{{cookiecutter_project_slug}}/roo_config/
