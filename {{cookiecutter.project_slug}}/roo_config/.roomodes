@@ -13,3 +13,5 @@ test:.roo/system-prompt-test
 
 # Add custom modes below
 # example:.roo/system-prompt-example
+advanced-orchestrator:.roo/system-prompt-advanced-orchestrator
+vibemode:.roo/system-prompt-vibemode
