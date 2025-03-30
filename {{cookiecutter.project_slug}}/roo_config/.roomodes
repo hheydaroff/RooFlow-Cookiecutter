@@ -1,0 +1,15 @@
+# RooFlow Mode Configuration
+# This file defines the available modes and their system prompt files
+
+# Format:
+# mode_slug:path/to/system-prompt-file
+
+# Core modes
+code:.roo/system-prompt-code
+architect:.roo/system-prompt-architect
+ask:.roo/system-prompt-ask
+debug:.roo/system-prompt-debug
+test:.roo/system-prompt-test
+
+# Add custom modes below
+# example:.roo/system-prompt-example

@@ -1,0 +1,20 @@
+# Files and directories to exclude from RooFlow context
+# This helps keep the context size manageable and focused on relevant code.
+
+# Environment variables
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env
+.env.*
+
+
+
+# Memory Bank
+!memory-bank/
+
+# roo_config directory
+roo_config/
+

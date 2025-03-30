@@ -1,0 +1,117 @@
+language_preference: "English"
+
+global_instructions: |
+  You are assisting with the {{ cookiecutter.project_name }} project. 
+  {{ cookiecutter.project_description }}
+  
+  Follow these general guidelines:
+  - Provide clear, concise, and accurate responses
+  - When writing code, focus on readability, maintainability, and best practices
+  - Consider security implications in all implementations
+  - Optimize for performance where appropriate
+  - Include appropriate documentation and comments
+
+essential_documentation:
+  - name: "projectRoadmap.md"
+    purpose: "Track high-level goals, features, and progress"
+    update_frequency: "When high-level goals change or tasks are completed"
+    
+  - name: "currentTask.md"
+    purpose: "Detail current objectives, context, and next steps"
+    update_frequency: "After completing each task or subtask"
+    
+  - name: "techStack.md"
+    purpose: "Document key technology choices and architecture decisions"
+    update_frequency: "When significant technology decisions are made or changed"
+    
+  - name: "codebaseSummary.md"
+    purpose: "Provide a concise overview of project structure and recent changes"
+    update_frequency: "When significant changes affect the overall structure"
+
+workflow_instructions:
+  - "At the beginning of every task, read the essential documents in this order: projectRoadmap.md, currentTask.md, techStack.md, codebaseSummary.md"
+  - "Update documents based on significant changes, not minor steps"
+  - "If conflicting information is found between documents, ask for clarification"
+  - "Create detailed step-by-step instructions for tasks requiring user action"
+  - "Prioritize frequent testing: Run servers and test functionality regularly throughout development"
+  - "Continuously analyze and optimize your workflow"
+  - "Integrate user feedback into development decisions"
+
+task_workflow:
+  - step: "Analyze the task requirements in detail"
+    details: |
+      - Review projectRoadmap.md and identify how the task aligns with project goals
+      - Examine currentTask.md to understand the context and previous work
+      - Study techStack.md to ensure the task aligns with current technology choices
+      - Review codebaseSummary.md to understand potential impacts on existing components
+      - Consider any relevant user feedback from previous tasks
+      - Outline specific steps for implementation, testing, and documentation updates
+      - Identify potential challenges and plan mitigation strategies
+      
+  - step: "Update currentTask.md with your detailed plan"
+  
+  - step: "Execute the task, frequently committing changes and updating documentation"
+  
+  - step: "Review your work and its impact on the project"
+    details: |
+      - Analyze how the completed task affects other components in codebaseSummary.md
+      - Consider necessary updates to techStack.md if new technologies were introduced
+      - Plan for potential optimizations or refactoring based on the new implementation
+      - Reflect on how the task completion aligns with user feedback and project goals
+      
+  - step: "Update relevant documentation files, including techStack.md if necessary"
+  
+  - step: "Run tests and verify functionality"
+  
+  - step: "Reflect on the task completion process"
+    details: |
+      - Identify efficiency improvements
+      - Consider how user feedback was incorporated and its impact on the outcome
+      - Analyze if any workflow improvements could be made for future tasks
+      - Evaluate if the current documentation structure adequately captures the project state
+      
+  - step: "Update projectRoadmap.md with completed tasks, new insights, and any adjustments to project goals"
+
+quality_focus:
+  - category: "Code Quality"
+    points:
+      - "Clear and concise comments explaining complex logic"
+      - "Meaningful variable and function names"
+      - "Proper indentation and formatting"
+      - "Absence of code smells (e.g., duplicated code, long methods)"
+      - "Adherence to SOLID principles and other relevant design patterns"
+      
+  - category: "Security"
+    points:
+      - "Validate and sanitize all user inputs"
+      - "Use parameterized queries to prevent SQL injection"
+      - "Encode outputs to prevent cross-site scripting (XSS)"
+      - "Follow secure coding practices for authentication and authorization"
+      - "Consult security best practices documentation when in doubt"
+      
+  - category: "Performance"
+    points:
+      - "Use appropriate data structures and algorithms"
+      - "Cache frequently accessed data when appropriate"
+      - "Optimize database queries"
+      - "Avoid unnecessary loops and computations"
+      
+  - category: "Testing"
+    points:
+      - "Write comprehensive unit tests"
+      - "Aim for high test coverage"
+      - "Use mocking frameworks to isolate units of code during testing"
+      - "Write tests that cover both positive and negative scenarios"
+      - "Run tests frequently to catch errors early"
+      
+  - category: "Documentation"
+    points:
+      - "Write JSDoc/Docstring-style comments for functions and classes"
+      - "Update the project's documentation to reflect any changes"
+      
+  - category: "Error Handling"
+    points:
+      - "Implement robust error handling to prevent application crashes"
+      - "Use try-except/try-catch blocks to handle potential exceptions"
+      - "Log errors appropriately"
+      - "Provide informative error messages"
