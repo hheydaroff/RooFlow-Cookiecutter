@@ -1,0 +1,11 @@
+{
+  "project_name": "My RooFlow Project",
+  "project_slug": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
+  "project_description": "A project using RooFlow for persistent context and optimized AI-assisted development",
+  "author_name": "Your Name",
+  "author_email": "your.email@example.com",
+  "license": ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause"],
+  "include_default_mode": ["yes", "no"],
+  "include_memory_bank_templates": ["yes", "no"],
+  "use_uv": ["no", "yes"]
+}
