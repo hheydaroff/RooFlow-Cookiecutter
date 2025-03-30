@@ -50,3 +50,4 @@ yarn-debug.log
 
 # Roo Config
 roo_config/
+!{{cookiecutter.project_slug}}/roo_config
