@@ -49,5 +49,6 @@ yarn-debug.log
 .env.production.local
 
 # Roo Config
+# Note: In generated projects, we want to ignore the roo_config directory
+# but we don't want to ignore it in the template repository
 roo_config/
-!{{cookiecutter.project_slug}}/roo_config
