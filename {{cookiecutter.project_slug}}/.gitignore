@@ -52,3 +52,6 @@ yarn-debug.log
 # Note: In generated projects, we want to ignore the roo_config directory
 # but we don't want to ignore it in the template repository
 roo_config/
+
+# Memory Bank
+memory_bank/
