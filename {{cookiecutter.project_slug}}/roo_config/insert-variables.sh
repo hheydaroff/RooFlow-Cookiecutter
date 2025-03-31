@@ -34,30 +34,28 @@ echo "- Home Directory: $HOME"
 echo "- Workspace Directory: $WORKSPACE"
 echo
 
-# --- Directory Setup ---
-ROO_DIR="$WORKSPACE/.roo"
-
-# Create .roo directory if it doesn't exist
-if [ ! -d "$ROO_DIR" ]; then
-    mkdir -p "$ROO_DIR"
-    echo "Created .roo directory"
-fi
-
 # --- Function to escape strings for sed ---
 escape_for_sed() {
     echo "$1" | sed 's/[\/&]/\\&/g'
 }
 
-# Check if roo_config/.roo directory exists with system prompt files
-if [ -d "roo_config/.roo" ] && [ "$(ls -A roo_config/.roo 2>/dev/null)" ]; then
-    echo "Found system prompt files in roo_config/.roo"
+# Check if roo_config/clinerules directory exists with system prompt files
+if [ -d "roo_config/clinerules" ] && [ "$(ls -A roo_config/clinerules 2>/dev/null)" ]; then
+    echo "Found system prompt files in roo_config/clinerules"
     
-    # Copy files from roo_config/.roo to .roo
-    cp -r roo_config/.roo/* "$ROO_DIR/"
-    echo "Copied system prompt files to $ROO_DIR"
+    # Copy each file individually from roo_config/clinerules to workspace directory
+    for file in roo_config/clinerules/.clinerules-*; do
+        if [ -f "$file" ]; then
+            filename=$(basename "$file")
+            cp "$file" "$WORKSPACE/$filename"
+            echo "Copied $filename to workspace directory"
+        else
+            echo "Warning: No .clinerules files found in roo_config/clinerules"
+        fi
+    done
     
     # --- Perform Replacements using sed ---
-    find "$ROO_DIR" -type f -name "system-prompt-*" -print0 | while IFS= read -r -d $'\0' file; do
+    find "$WORKSPACE" -type f -name ".clinerules-*" -print0 | while IFS= read -r -d $'\0' file; do
         echo "Processing: $file"
         
         # Basic variables - using sed with escaped strings
@@ -74,15 +72,15 @@ if [ -d "roo_config/.roo" ] && [ "$(ls -A roo_config/.roo 2>/dev/null)" ]; then
         echo "Completed: $file"
     done
 else
-    echo "No system prompt files found in roo_config/.roo"
+    echo "No system prompt files found in roo_config/clinerules"
     
     # Check if default-system-prompt.md exists
     if [ -f "default-system-prompt.md" ]; then
         echo "Found default-system-prompt.md"
         
         # Create system prompt files for each mode
-        for mode in code architect ask debug test; do
-            output_file="$ROO_DIR/system-prompt-$mode"
+        for mode in code architect ask debug test vibemode advanced-orchestrator; do
+            output_file="$WORKSPACE/.clinerules-$mode"
             
             sed -e "s/OS_PLACEHOLDER/$(escape_for_sed "$OS")/g" \
                 -e "s/SHELL_PLACEHOLDER/$(escape_for_sed "$SHELL")/g" \

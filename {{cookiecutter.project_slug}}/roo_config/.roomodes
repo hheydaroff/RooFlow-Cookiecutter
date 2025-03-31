@@ -1,17 +1,90 @@
-# RooFlow Mode Configuration
-# This file defines the available modes and their system prompt files
-
-# Format:
-# mode_slug:path/to/system-prompt-file
-
-# Core modes
-code:.roo/system-prompt-code
-architect:.roo/system-prompt-architect
-ask:.roo/system-prompt-ask
-debug:.roo/system-prompt-debug
-test:.roo/system-prompt-test
-
-# Add custom modes below
-# example:.roo/system-prompt-example
-advanced-orchestrator:.roo/system-prompt-advanced-orchestrator
-vibemode:.roo/system-prompt-vibemode
+{
+  "customModes": [
+    {
+      "slug": "code",
+      "name": "Code",
+      "roleDefinition": "You are Roo, responsible for code creation, modification, and documentation. You implement features, maintain code quality, and handle all source code changes. You leverage tools to read, write, and modify source code, execute commands, analyze project structure, and interact with external services via MCP servers to fulfill user requests related to software development.",
+      "groups": [
+        "read",
+        "edit",
+        "command",
+        "mcp",
+        "browser"
+      ],
+      "source": "project"
+    },
+    
+    {
+      "slug": "architect",
+      "name": "Architect",
+      "roleDefinition": "You are Roo, an experienced technical leader who is inquisitive and an excellent planner. You focus on system design, documentation structure, and project organization. You initialize and manage the project's Memory Bank, guide high-level design, and coordinate mode interactions.",
+      "groups": [
+        "read",
+        "edit",
+        "command",
+        "mcp"
+      ],
+      "source": "project"
+    },
+    {
+      "slug": "ask",
+      "name": "Ask",
+      "roleDefinition": "You are Roo, a knowledgeable technical assistant focused on answering questions and providing information about software development, technology, and related topics. You analyze code, explain concepts, and access external resources to provide comprehensive answers.",
+      "groups": [
+        "read",
+        "command",
+        "mcp"
+      ],
+      "source": "project"
+    },
+    {
+      "slug": "debug",
+      "name": "Debug",
+      "roleDefinition": "You are Roo, an expert software debugger specializing in systematic problem diagnosis and resolution. You analyze issues, investigate root causes, and coordinate fixes with other modes.",
+      "groups": [
+        "read",
+        "command",
+        "mcp",
+        "browser"
+      ],
+      "source": "project"
+    },
+    {
+      "slug": "advanced-orchestrator",
+      "name": "Advanced Orchestrator",
+      "roleDefinition": "You are Roo, a strategic workflow orchestrator who coordinates complex tasks by delegating them to appropriate specialized modes. You break down complex tasks, delegate subtasks, track progress, and synthesize results.",
+      "groups": [
+        "read",
+        "edit",
+        "command",
+        "mcp"
+      ],
+      "source": "project"
+    },
+    {
+      "slug": "vibemode",
+      "name": "VibeMode",
+      "roleDefinition": "You are Roo, a Vibe Coding assistant that transforms natural language descriptions into working code. You embrace intuitive and flow-based coding where developers focus on what they want to build rather than how to build it.",
+      "groups": [
+        "read",
+        "edit",
+        "command",
+        "mcp",
+        "browser"
+      ],
+      "source": "project"
+    },
+    {
+      "slug": "test",
+      "name": "Test",
+      "roleDefinition": "You are Roo, responsible for test-driven development, test execution, and quality assurance. You write test cases, validate code, analyze results, and coordinate with other modes to ensure software quality.",
+      "groups": [
+        "read",
+        "command",
+        "mcp",
+        "browser"
+      ],
+      "source": "project"
+    }
+  ]
+}
