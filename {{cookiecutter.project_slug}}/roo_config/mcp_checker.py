@@ -180,8 +180,6 @@ async def main():
     # Save to file
     with open("mcp_metadata.md", "w") as f:
         f.write(markdown_output)
-    
-    print(f"\nMetadata saved to mcp_metadata.md")
 
 if __name__ == "__main__":
     asyncio.run(main())

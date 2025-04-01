@@ -4,7 +4,7 @@ echo "RooFlow Environment Setup Script (Unix/Mac)"
 echo "=========================================="
 echo
 
-echo "This script will update system prompt files with your local environment details and MCP metadata."
+echo "This script will update system prompt files with your local environment details and MCP section with connected servers."
 echo
 
 # --- Determine script location and project root ---
@@ -63,32 +63,65 @@ escape_for_sed() {
 # --- Run MCP Checker to extract MCP metadata ---
 echo "Running MCP Checker to extract MCP metadata..."
 
-# Check if python3 is available
+# Check if uv is available
 if command -v uv &> /dev/null; then
     # Run mcp_checker.py using uv run with mcp dependency
     if uv run --with mcp mcp_checker.py > /tmp/mcp_metadata.md 2>/tmp/mcp_error.log; then
-        echo "MCP metadata extracted successfully"
-        MCP_METADATA=$(cat /tmp/mcp_metadata.md)
+        echo "MCP metadata extracted successfully and saved to /tmp/mcp_metadata.md"
+        # Display file size and first few lines
+        ls -l /tmp/mcp_metadata.md
+        echo "First few lines of MCP metadata:"
+        head -n 5 /tmp/mcp_metadata.md
+        
+        # Store the content in a variable for later use
+        MCP_CHECKER_OUTPUT=$(cat /tmp/mcp_metadata.md)
     else
         echo "Warning: Failed to extract MCP metadata. Check /tmp/mcp_error.log for details."
         echo "The script will continue, but MCP metadata may not be updated."
-        MCP_METADATA=$(cat /tmp/mcp_metadata.md 2>/dev/null || echo "No MCP metadata available")
+        MCP_CHECKER_OUTPUT=$(cat /tmp/mcp_metadata.md 2>/dev/null || echo "No MCP metadata available")
     fi
 else
     echo "Warning: uv is not available. MCP metadata extraction will be skipped."
     echo "To extract MCP metadata, please install uv (https://github.com/astral-sh/uv)."
-    MCP_METADATA=""
+    MCP_CHECKER_OUTPUT=""
 fi
+
+# Define the formatted MCP section
+echo "Setting up MCP section template..."
+FORMATTED_MCP="mcp:
+  overview:
+    - \"The Model Context Protocol (MCP) enables communication with external servers\"
+    - \"MCP servers provide additional tools and resources to extend capabilities\"
+    - \"Servers can be local (Stdio-based) or remote (SSE-based)\"
+  usage:
+    - \"Use server tools via the \`use_mcp_tool\` tool\"
+    - \"Access server resources via the \`access_mcp_resource\` tool\"
+    - \"Wait for server responses before proceeding with additional operations\"
+  connected_servers:"
 
 # --- Function to append MCP metadata to system prompt files ---
 update_mcp_section() {
     local file=$1
     local metadata="$2"
+    local checker_output="$3"
     
     if [ -n "$metadata" ]; then
         # Simply append the MCP metadata to the end of the file
         echo "" >> "$file"  # Add a blank line for separation
         echo "$metadata" >> "$file"
+        
+        # If we have MCP checker output, indent it with 4 spaces and append it under connected_servers
+        if [ -n "$checker_output" ]; then
+            echo "Appending MCP checker output to $file (length: ${#checker_output})"
+            
+            # Debug: Show the first few lines of the output
+            echo "First 3 lines of MCP checker output:"
+            echo "$checker_output" | head -n 3
+            
+            # Indent each line with 4 spaces and append
+            echo "$checker_output" | sed 's/^/    /' >> "$file"
+            echo "MCP checker output appended successfully"
+        fi
     fi
 }
 
@@ -133,10 +166,10 @@ if [ -n "$PROMPT_FILES_DIR" ]; then
         sed "${SED_IN_PLACE[@]}" "s|MCP_LOCATION_PLACEHOLDER|$(escape_for_sed "$MCP_LOCATION")|g" "$file"
         sed "${SED_IN_PLACE[@]}" "s|MCP_SETTINGS_PLACEHOLDER|$(escape_for_sed "$MCP_SETTINGS")|g" "$file"
         
-        # Update MCP section with metadata from mcp_checker.py
-        if [ -n "$MCP_METADATA" ]; then
-            echo "Updating MCP metadata in: $file"
-            update_mcp_section "$file" "$MCP_METADATA"
+        # Append formatted MCP section with MCP checker output as connected_servers
+        if [ -n "$FORMATTED_MCP" ]; then
+            echo "Updating MCP section in: $file"
+            update_mcp_section "$file" "$FORMATTED_MCP" "$MCP_CHECKER_OUTPUT"
         fi
         
         echo "Completed: $file"
@@ -179,10 +212,10 @@ else
                 -e "s|MCP_SETTINGS_PLACEHOLDER|$(escape_for_sed "$MCP_SETTINGS")|g" \
                 "$DEFAULT_TEMPLATE" > "$output_file"
                 
-            # Update MCP section with metadata from mcp_checker.py
-            if [ -n "$MCP_METADATA" ]; then
-                echo "Updating MCP metadata in: $output_file"
-                update_mcp_section "$output_file" "$MCP_METADATA"
+            # Append formatted MCP section with MCP checker output as connected_servers
+            if [ -n "$FORMATTED_MCP" ]; then
+                echo "Updating MCP section in: $output_file"
+                update_mcp_section "$output_file" "$FORMATTED_MCP" "$MCP_CHECKER_OUTPUT"
             fi
                 
             echo "Created $output_file"
@@ -195,5 +228,5 @@ fi
 
 echo
 echo "Setup complete!"
-echo "You can now use RooFlow with your local environment settings and updated MCP metadata."
+echo "You can now use RooFlow with your local environment settings and MCP section with connected servers."
 echo
