@@ -64,38 +64,31 @@ escape_for_sed() {
 echo "Running MCP Checker to extract MCP metadata..."
 
 # Check if python3 is available
-if command -v python3 &> /dev/null; then
-    # Use the MCP settings path from the environment variables
-    if python3 "$WORKSPACE/mcp_checker.py" "$MCP_SETTINGS" > /tmp/mcp_metadata.md 2>/tmp/mcp_error.log; then
+if command -v uv &> /dev/null; then
+    # Run mcp_checker.py using uv run with mcp dependency
+    if uv run --with mcp mcp_checker.py > /tmp/mcp_metadata.md 2>/tmp/mcp_error.log; then
         echo "MCP metadata extracted successfully"
         MCP_METADATA=$(cat /tmp/mcp_metadata.md)
     else
         echo "Warning: Failed to extract MCP metadata. Check /tmp/mcp_error.log for details."
         echo "The script will continue, but MCP metadata may not be updated."
-        MCP_METADATA=$(cat /tmp/mcp_metadata.md 2>/dev/null || echo "")
+        MCP_METADATA=$(cat /tmp/mcp_metadata.md 2>/dev/null || echo "No MCP metadata available")
     fi
 else
-    echo "Warning: Python 3 is not available. MCP metadata extraction will be skipped."
-    echo "To extract MCP metadata, please install Python 3 and the required packages."
+    echo "Warning: uv is not available. MCP metadata extraction will be skipped."
+    echo "To extract MCP metadata, please install uv (https://github.com/astral-sh/uv)."
     MCP_METADATA=""
 fi
 
-# --- Function to update MCP section in system prompt files ---
+# --- Function to append MCP metadata to system prompt files ---
 update_mcp_section() {
     local file=$1
     local metadata="$2"
     
     if [ -n "$metadata" ]; then
-        # Find the line with "connected_servers:" and replace everything after it until the next section
-        awk -v metadata="$metadata" '
-        BEGIN { in_mcp = 0; in_connected_servers = 0; }
-        /^mcp:/ { in_mcp = 1; print; next; }
-        /^[a-z]/ && in_mcp { in_mcp = 0; print; next; }
-        /^    connected_servers:/ && in_mcp { print; print metadata; in_connected_servers = 1; next; }
-        in_connected_servers && /^    [a-z]/ { in_connected_servers = 0; print; next; }
-        in_connected_servers { next; } # Skip existing connected_servers content
-        { print; }
-        ' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
+        # Simply append the MCP metadata to the end of the file
+        echo "" >> "$file"  # Add a blank line for separation
+        echo "$metadata" >> "$file"
     fi
 }
 
@@ -174,7 +167,7 @@ else
     
     if [ -n "$DEFAULT_TEMPLATE" ]; then
         # Create system prompt files for each mode
-        for mode in code architect ask debug test; do
+        for mode in advanced-orchestrator architect ask code debug test vibemode; do
             output_file="$ROO_DIR/system-prompt-$mode"
             
             sed -e "s/OS_PLACEHOLDER/$(escape_for_sed "$OS")/g" \
