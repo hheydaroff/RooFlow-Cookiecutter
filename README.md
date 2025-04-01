@@ -1,36 +1,10 @@
 # RooFlow Cookiecutter Template
 
-<div align="center">
-
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
 [![Cookiecutter](https://img.shields.io/badge/built%20with-Cookiecutter-ff69b4.svg)](https://github.com/cookiecutter/cookiecutter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/hheydaroff/rooflow-cookiecutter/pulls)
-[![UVX Compatible](https://img.shields.io/badge/UVX-compatible-blueviolet)](https://github.com/astral-sh/uv)
-
-</div>
 
 A [Cookiecutter](https://github.com/cookiecutter/cookiecutter) template for creating new RooFlow projects. RooFlow helps maintain context across AI assistant sessions, making development more efficient and consistent.
-
-## Table of Contents
-
-- [What is RooFlow?](#what-is-rooflow)
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Requirements](#requirements)
-- [Usage](#usage)
-- [Configuration Options](#configuration-options)
-- [Project Structure](#project-structure)
-- [Post-Generation](#post-generation)
-- [RooFlow Modes](#rooflow-modes)
-  - [Adding or Updating Modes](#adding-or-updating-modes)
-- [Default Mode Configuration](#default-mode-configuration)
-- [Memory Bank Templates](#memory-bank-templates)
-- [Advanced Customization](#advanced-customization)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [Reporting Issues](#reporting-issues)
-- [License](#license)
 
 ## What is RooFlow?
 
@@ -46,24 +20,12 @@ This template provides everything you need to quickly set up a new project with 
 ## Features
 
 - **Configurable project structure** with RooFlow integration
-- **System prompts** for different AI assistant modes (code, architect, ask, debug, test, and more)
+- **System prompts** for different AI assistant modes (code, architect, ask, debug, test)
 - **Environment variable setup scripts** for Windows and Unix/Mac
 - **Optional default mode configuration** for customized AI assistance
 - **Optional memory bank templates** for persistent context
 - **UVX integration support** for modern Python package management
 - **Comprehensive documentation** for easy setup and customization
-
-## Quick Start
-
-```bash
-# Install cookiecutter
-pip install cookiecutter
-
-# Create a new project
-cookiecutter gh:hheydaroff/rooflow-cookiecutter
-
-# Follow the prompts to configure your project
-```
 
 ## Requirements
 
@@ -120,6 +82,7 @@ The generated project will have this structure:
 
 ```
 my-rooflow-project/
+├── .roo/                  # System prompt files for different modes
 ├── .rooignore             # Files to ignore in context
 ├── .roomodes              # Mode configuration
 ├── roo_config/            # Configuration files
@@ -167,76 +130,6 @@ If you chose to use UVX, you can set up your environment by running:
 
 This will create a virtual environment and install any dependencies listed in `requirements.txt`.
 
-## RooFlow Modes
-
-RooFlow provides specialized modes for different development tasks. Each mode has a specific role and capabilities:
-
-| Mode | Description | Capabilities |
-|------|-------------|--------------|
-| **Code** | Handles code creation and modification | Read, edit, execute commands, use MCP servers, browser |
-| **Architect** | Focuses on system design and project organization | Read, edit, execute commands, use MCP servers |
-| **Ask** | Answers questions and provides information | Read, execute commands, use MCP servers |
-| **Debug** | Diagnoses and resolves problems | Read, execute commands, use MCP servers, browser |
-| **Advanced Orchestrator** | Coordinates complex tasks across modes | Read, edit, execute commands, use MCP servers |
-| **VibeMode** | Transforms natural language into code | Read, edit, execute commands, use MCP servers, browser |
-| **Test** | Handles test-driven development and QA | Read, execute commands, use MCP servers, browser |
-
-These modes are configured in the `.roomodes` file and can be customized to fit your project's needs.
-
-### Adding or Updating Modes
-
-To add or update RooFlow modes in your project, you need to modify two key components:
-
-#### 1. Update the `.roomodes` file
-
-The `.roomodes` file contains JSON configuration for all available modes. To add a new mode, add an entry like this:
-
-```json
-{
-  "slug": "test",
-  "name": "Test",
-  "roleDefinition": "You are Roo, responsible for test-driven development, test execution, and quality assurance. You write test cases, validate code, analyze results, and coordinate with other modes to ensure software quality.",
-  "groups": [
-    "read",
-    "command",
-    "mcp",
-    "browser"
-  ],
-  "source": "project"
-}
-```
-
-Key components:
-- `slug`: Unique identifier for the mode (used in file names and URLs)
-- `name`: Display name for the mode
-- `roleDefinition`: Description of the mode's role and responsibilities
-- `groups`: Capabilities granted to this mode (read, edit, command, mcp, browser)
-- `source`: Where the mode is defined (usually "project")
-
-#### 2. Create a `.clinerules-[mode-slug]` file
-
-For each mode, create a file named `.clinerules-[mode-slug]` (replacing `[mode-slug]` with your mode's slug) containing custom instructions for that mode. For example:
-
-```
-# .clinerules-test
-
-You are a test specialist focused on ensuring code quality through comprehensive testing.
-
-## Testing Approach
-- Prioritize test-driven development
-- Create unit, integration, and end-to-end tests
-- Focus on edge cases and error handling
-- Ensure good test coverage
-
-## Best Practices
-- Write clear test descriptions
-- Use appropriate testing frameworks
-- Separate test fixtures from test logic
-- Mock external dependencies
-```
-
-This file defines the specific instructions and guidelines for the AI assistant when operating in this mode.
-
 ## Default Mode Configuration
 
 If you selected to include default mode configuration, your project will include a `roo_config/default-mode` directory with:
@@ -256,70 +149,15 @@ To use the memory bank:
 1. Add files to the `memory-bank` directory containing important project information
 2. These files will be loaded into the AI's context when you start a new session
 
-Examples of information to store in the memory bank:
-- Project architecture overview
-- Design decisions and rationales
-- Coding standards and conventions
-- Common troubleshooting steps
-- Frequently used commands
+## Customization
 
-## Advanced Customization
+You can customize the generated project by:
 
-### Adding Custom Modes
-
-To add a custom mode:
-
-1. Update the `.roomodes` file with your new mode configuration
-2. Create a `.clinerules-[mode-slug]` file with custom instructions for the mode
-3. If using default mode, update the `cline_custom_modes.json` file
-
-### Extending the Memory Bank
-
-The memory bank can be extended with additional files and directories to organize project knowledge. Consider creating subdirectories for different aspects of your project:
-
-- `memory-bank/architecture/`
-- `memory-bank/decisions/`
-- `memory-bank/standards/`
-
-### Customizing UVX Configuration
-
-If you're using UVX, you can customize the configuration by editing the `.uv/uv.toml` file. This allows you to change Python versions, virtual environment locations, and other UVX settings.
-
-## Troubleshooting
-
-### Common Issues
-
-#### Environment Variables Not Set
-
-If the environment variables are not being set correctly:
-
-1. Check that you've run the appropriate script for your operating system
-2. Verify that the script has execution permissions (Unix/Mac)
-3. Try running the script with administrator privileges
-
-#### UVX Not Found
-
-If you get a "UVX not found" error:
-
-1. Ensure UVX is installed: `pip install uv`
-2. Verify that UVX is in your system PATH
-3. Try using the full path to the UVX executable
-
-#### Cookiecutter Template Not Found
-
-If Cookiecutter can't find the template:
-
-1. Check your internet connection
-2. Verify the repository URL
-3. Try using the HTTPS URL instead of the SSH URL
-
-### Getting Help
-
-If you encounter issues not covered here, please:
-
-1. Check the [GitHub Issues](https://github.com/hheydaroff/rooflow-cookiecutter/issues) for similar problems
-2. Search the [RooFlow documentation](https://github.com/GreatScottyMac/RooFlow) for more information
-3. Open a new issue with detailed information about your problem
+1. Editing the system prompt files in `.roo/`
+2. Modifying the `.rooignore` file to control what files are included in context
+3. Updating the `.roomodes` file to add or remove modes
+4. Customizing the default mode configuration in `roo_config/default-mode/`
+5. Adding project-specific information to the memory bank
 
 ## Contributing
 

@@ -69,6 +69,10 @@ echo "UVX environment setup complete!"
 def main():
     print("Running post-generation hook...")
     
+    # Create .roo directory if it doesn't exist
+    if not os.path.exists('.roo'):
+        os.makedirs('.roo')
+        print("Created .roo directory")
 
     # Move .rooignore and .roomodes to project root
     if os.path.exists('roo_config/.rooignore'):

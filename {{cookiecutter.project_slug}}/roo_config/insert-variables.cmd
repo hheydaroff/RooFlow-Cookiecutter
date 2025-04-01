@@ -20,18 +20,21 @@ echo - Home Directory: %HOME_DIR%
 echo - Workspace Directory: %WORKSPACE_DIR%
 echo.
 
+REM Create .roo directory if it doesn't exist
+if not exist ".roo" (
+    mkdir .roo
+    echo Created .roo directory
+)
+
 REM Process system prompt files
 echo Processing system prompt files...
 
-REM Check if roo_config\clinerules directory exists with system prompt files
-if exist "roo_config\clinerules\.clinerules-*" (
-    echo Found system prompt files in roo_config/clinerules
-    for %%f in (roo_config\clinerules\.clinerules-*) do (
-        set "filename=%%~nxf"
-        echo Processing !filename!
-        echo Copying !filename! to workspace directory
-        copy "%%f" "!filename!" > nul
-
+REM Check if roo_config\.roo directory exists with system prompt files
+if exist "roo_config\.roo\*" (
+    echo Found system prompt files in roo_config/.roo
+    for %%f in (roo_config\.roo\*) do (
+        echo Processing %%f
+        
         REM Read file content
         set "content="
         for /f "tokens=* delims=" %%l in (%%f) do (
@@ -44,10 +47,16 @@ if exist "roo_config\clinerules\.clinerules-*" (
 
 "
         )
-        echo Updated !filename!
+        
+        REM Get filename without path
+        for %%i in (%%f) do set "filename=%%~nxi"
+        
+        REM Write updated content to .roo directory
+        echo !content! > .roo\!filename!
+        echo Updated .roo\!filename!
     )
 ) else (
-    echo No system prompt files found in roo_config/clinerules
+    echo No system prompt files found in roo_config/.roo
     
     REM Check if default-system-prompt.md exists
     if exist "default-system-prompt.md" (
@@ -67,9 +76,9 @@ if exist "roo_config\clinerules\.clinerules-*" (
         )
         
         REM Create system prompt files for each mode
-        for %%m in (code architect ask debug test vibemode advanced-orchestrator) do (
-            echo !content! > "%WORKSPACE_DIR%\.clinerules-%%m"
-            echo Created .clinerules-%%m
+        for %%m in (code architect ask debug test) do (
+            echo !content! > .roo\system-prompt-%%m
+            echo Created .roo\system-prompt-%%m
         )
     ) else (
         echo No default system prompt found. Please create system prompt files manually.
