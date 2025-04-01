@@ -30,7 +30,8 @@ else
     SED_IN_PLACE=(-i)
 fi
 
-SHELL="bash"  # Hardcode to bash since we're explicitly using it
+# Get the current shell name (basename extracts just the shell name from the path)
+SHELL=$(basename "$SHELL" 2>/dev/null || echo "bash")  # Fallback to bash if detection fails
 HOME=$(echo "$HOME")  # Use existing $HOME, but quote it
 WORKSPACE="$PROJECT_ROOT"
 
