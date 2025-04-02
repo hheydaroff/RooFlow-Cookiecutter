@@ -3,8 +3,9 @@
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
 [![Cookiecutter](https://img.shields.io/badge/built%20with-Cookiecutter-ff69b4.svg)](https://github.com/cookiecutter/cookiecutter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![UV](https://img.shields.io/badge/UV-first-blueviolet.svg)](https://github.com/astral-sh/uv)
 
-A [Cookiecutter](https://github.com/cookiecutter/cookiecutter) template for creating new RooFlow projects. RooFlow helps maintain context across AI assistant sessions, making development more efficient and consistent.
+A [Cookiecutter](https://github.com/cookiecutter/cookiecutter) template for creating new RooFlow projects with seamless UV integration. RooFlow helps maintain context across AI assistant sessions, making development more efficient and consistent.
 
 ## What is RooFlow?
 
@@ -15,27 +16,39 @@ A [Cookiecutter](https://github.com/cookiecutter/cookiecutter) template for crea
 - Adapt to different development modes (coding, architecture planning, debugging, etc.)
 - Provide more consistent and relevant assistance
 
-This template provides everything you need to quickly set up a new project with RooFlow integration.
+This template provides everything you need to quickly set up a new project with RooFlow integration and modern Python tooling via UV.
 
 ## Features
 
+- **UV-first approach** with automatic fallbacks for compatibility
 - **Configurable project structure** with RooFlow integration
 - **System prompts** for different AI assistant modes (code, architect, ask, debug, test)
 - **Environment variable setup scripts** for Windows and Unix/Mac
 - **Optional default mode configuration** for customized AI assistance
 - **Optional memory bank templates** for persistent context
-- **UVX integration support** for modern Python package management
 - **Comprehensive documentation** for easy setup and customization
 
 ## Requirements
 
 - Python 3.6+
-- Cookiecutter (`pip install cookiecutter` or `uv pip install cookiecutter`)
-- Optional: UVX (`pip install uv`) - A modern Python package installer and resolver
+- UV (`pip install uv`) - A modern, fast Python package installer and resolver
+- Cookiecutter is automatically installed via UV when using the recommended approach
 
 ## Usage
 
-### With pip (traditional)
+### With UV (recommended)
+
+```bash
+# Install UV if you haven't already
+pip install uv
+
+# Create a new project from this template
+uvx cookiecutter gh:hheydaroff/rooflow-cookiecutter
+# or from local template
+uvx cookiecutter path/to/rooflow-cookiecutter
+```
+
+### With pip (fallback)
 
 ```bash
 # Install cookiecutter if you haven't already
@@ -45,18 +58,6 @@ pip install cookiecutter
 cookiecutter gh:hheydaroff/rooflow-cookiecutter
 # or from local template
 cookiecutter path/to/rooflow-cookiecutter
-```
-
-### With UVX (recommended)
-
-```bash
-# Install UVX if you haven't already
-pip install uv
-
-# Create a new project from this template
-uvx cookiecutter gh:hheydaroff/rooflow-cookiecutter
-# or from local template
-uvx cookiecutter path/to/rooflow-cookiecutter
 ```
 
 ## Configuration Options
@@ -73,7 +74,7 @@ When you run the template, you'll be prompted for these values:
 | `license` | Choose a license | MIT, Apache-2.0, GPL-3.0, BSD-3-Clause |
 | `include_default_mode` | Include default mode configuration | yes/no |
 | `include_memory_bank_templates` | Include memory bank templates | yes/no |
-| `use_uv` | Use UVX for Python package management | yes/no |
+| `use_uv` | Use UV for Python package management | yes (default)/no |
 
 
 ## Project Structure
@@ -88,6 +89,7 @@ my-rooflow-project/
 ├── roo_config/            # Configuration files
 │   ├── insert-variables.cmd  # Windows script to set environment variables
 │   ├── insert-variables.sh   # Unix script to set environment variables
+│   ├── mcp_checker.py     # Script to extract MCP metadata
 │   └── default-mode/      # Default mode configuration (if enabled)
 │       ├── cline_custom_modes.json  # Custom modes configuration
 │       ├── custom-instructions.yaml # Custom instructions
@@ -100,15 +102,15 @@ my-rooflow-project/
 └── README.md              # Project README
 ```
 
-If you select UVX integration, these additional files will be created:
+By default, these UV-related files will be created:
 
 ```
 my-rooflow-project/
-├── .uv/                   # UVX configuration directory
-│   └── uv.toml            # UVX configuration file
-├── uv-setup.cmd           # Windows UVX setup script
-├── uv-setup.sh            # Unix/Mac UVX setup script
-└── requirements.txt       # Python dependencies file
+├── .uv/                   # UV configuration directory
+│   └── uv.toml            # UV configuration file
+├── uv-setup.cmd           # Windows UV setup script
+├── uv-setup.sh            # Unix/Mac UV setup script
+└── requirements.txt       # Python dependencies file with mcp package
 ```
 
 ## Post-Generation
@@ -120,15 +122,37 @@ After generating the project:
    - Windows: `roo_config/insert-variables.cmd`
    - Unix/Mac: `roo_config/insert-variables.sh`
 
-This will configure the system prompts with your local environment details.
+This will configure the system prompts with your local environment details and extract MCP metadata using UV.
 
-### UVX Setup (if selected)
+### UV Setup
 
-If you chose to use UVX, you can set up your environment by running:
+The project is configured to use UV by default. You can set up your environment by running:
 - Windows: `uv-setup.cmd`
 - Unix/Mac: `./uv-setup.sh`
 
-This will create a virtual environment and install any dependencies listed in `requirements.txt`.
+This will create a virtual environment and install any dependencies listed in `requirements.txt`, including the MCP package required for RooFlow functionality.
+
+## UV Integration Details
+
+This template is designed with a UV-first approach:
+
+- All scripts prioritize using UV when available
+- The MCP checker script is optimized to run with UV (`uv run --with mcp`)
+- Automatic fallbacks to traditional tools ensure compatibility
+- Default configuration files are set up for optimal UV usage
+- Requirements are automatically installed via UV when detected
+
+## Why UV?
+
+UV is a modern Python packaging tool that offers significant advantages:
+
+- **Speed**: Up to 10-100x faster than pip for package installation
+- **Reliability**: Better dependency resolution with fewer conflicts
+- **Compatibility**: Works with existing Python packaging standards
+- **Modern**: Built with Rust for performance and safety
+- **Extensible**: Designed with a modular architecture
+
+All scripts in this template are designed to use UV when available, with fallbacks to traditional tools for compatibility.
 
 ## Default Mode Configuration
 

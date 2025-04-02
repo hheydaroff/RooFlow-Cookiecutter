@@ -45,48 +45,45 @@ if not exist "%ROO_DIR%" (
     echo Created .roo directory at %ROO_DIR%
 )
 
-REM Run MCP Checker to extract MCP metadata
-echo Running MCP Checker to extract MCP metadata...
+REM --- Function to check dependencies ---
+call :check_dependencies
+if %ERRORLEVEL% NEQ 0 (
+    echo Warning: Dependency check failed. Some features may not work correctly.
+)
+
+REM --- Set up paths for MCP checker ---
+set MCP_CHECKER_SCRIPT=%CONFIG_DIR%\mcp_checker.py
 set MCP_TEMP_FILE=%TEMP%\mcp_metadata.md
 set MCP_ERROR_LOG=%TEMP%\mcp_error.log
 
-REM Check if Python is available
-where python >nul 2>nul
+REM --- Run MCP checker with fallbacks ---
+call :run_mcp_checker "%MCP_TEMP_FILE%" "%MCP_ERROR_LOG%" "%MCP_CHECKER_SCRIPT%"
 if %ERRORLEVEL% EQU 0 (
-    REM Python is available, run the MCP checker
-    python "%WORKSPACE_DIR%\mcp_checker.py" "%MCP_SETTINGS%" > "%MCP_TEMP_FILE%" 2> "%MCP_ERROR_LOG%"
-    if %ERRORLEVEL% EQU 0 (
-        echo MCP metadata extracted successfully
-    ) else (
-        echo Warning: Failed to extract MCP metadata. Check %MCP_ERROR_LOG% for details.
-        echo The script will continue, but MCP metadata may not be updated.
-        type nul > "%MCP_TEMP_FILE%"
-    )
+    echo MCP metadata extracted successfully and saved to %MCP_TEMP_FILE%
+    REM Display file size and first few lines
+    dir "%MCP_TEMP_FILE%"
+    echo First few lines of MCP metadata:
+    type "%MCP_TEMP_FILE%" | findstr /N "^" | findstr /B "^[1-5]:" 
+    
+    REM Store the content in a variable for later use
+    set /p MCP_CHECKER_OUTPUT=<"%MCP_TEMP_FILE%"
 ) else (
-    echo Warning: Python is not available. MCP metadata extraction will be skipped.
-    echo To extract MCP metadata, please install Python and the required packages.
+    echo Warning: Failed to extract MCP metadata. Check %MCP_ERROR_LOG% for details.
+    echo The script will continue, but MCP metadata may not be updated.
+    echo No MCP metadata available > "%MCP_TEMP_FILE%"
+    set MCP_CHECKER_OUTPUT=No MCP metadata available
 )
 
 REM Process system prompt files
 echo Looking for system prompt files...
 
-REM Check for system prompt files in different possible locations
-set "PROMPT_FILES_DIR="
+REM Only look in the project's roo_config/.roo directory
+set "PROMPT_FILES_DIR=%CONFIG_DIR%\.roo"
 
-REM List of possible locations for system prompt files
-set "LOCATIONS=%CONFIG_DIR%\.roo %PROJECT_ROOT%\roo_config\.roo %PROJECT_ROOT%\{{cookiecutter.project_slug}}\roo_config\.roo %WORKSPACE_DIR%\roo_config\.roo"
-
-for %%L in (%LOCATIONS%) do (
-    echo Checking %%L
-    if exist "%%L\*" (
-        set "PROMPT_FILES_DIR=%%L"
-        echo Found system prompt files in !PROMPT_FILES_DIR!
-        goto :found_prompt_files
-    )
-)
-
-:found_prompt_files
-if defined PROMPT_FILES_DIR (
+echo Checking %PROMPT_FILES_DIR%
+if exist "%PROMPT_FILES_DIR%\*" (
+    echo Found system prompt files in %PROMPT_FILES_DIR%
+    
     REM Copy files from found location to .roo
     for %%f in ("%PROMPT_FILES_DIR%\*") do (
         REM Get filename without path
@@ -149,16 +146,16 @@ if defined PROMPT_FILES_DIR (
         echo Completed: %ROO_DIR%\!filename!
     )
 ) else (
-    echo No system prompt files found in any of the expected locations.
+    echo No system prompt files found in %PROMPT_FILES_DIR%
     
     REM List directories to help debug
     echo Current directory structure:
     dir /s /b "%PROJECT_ROOT%\.roo" "%PROJECT_ROOT%\roo_config" 2>nul
     echo.
     
-    REM Check for default template in different locations
+    REM Check for default template in the project
     set "DEFAULT_TEMPLATE="
-    set "TEMPLATE_LOCATIONS=%PROJECT_ROOT%\default-system-prompt.md %WORKSPACE_DIR%\default-system-prompt.md %CONFIG_DIR%\default-system-prompt.md"
+    set "TEMPLATE_LOCATIONS=%PROJECT_ROOT%\default-system-prompt.md %CONFIG_DIR%\default-system-prompt.md"
     
     for %%T in (%TEMPLATE_LOCATIONS%) do (
         if exist "%%T" (
@@ -171,7 +168,11 @@ if defined PROMPT_FILES_DIR (
     :found_template
     if defined DEFAULT_TEMPLATE (
         REM Create system prompt files for each mode
-        for %%m in (code architect ask debug test) do (
+        REM Define the list of supported modes
+set "SUPPORTED_MODES=advanced-orchestrator architect ask code debug test vibemode junior-reviewer senior-reviewer documentation-writer"
+
+REM Create system prompt files for each mode
+for %%m in (%SUPPORTED_MODES%) do (
             REM Copy default template
             copy "%DEFAULT_TEMPLATE%" "%ROO_DIR%\system-prompt-%%m" > nul
             
@@ -240,5 +241,135 @@ echo.
 echo Setup complete!
 echo You can now use RooFlow with your local environment settings and updated MCP metadata.
 echo.
+
+goto :eof
+
+REM --- Function to check dependencies ---
+:check_dependencies
+echo Checking dependencies...
+
+REM Check for UV first (preferred)
+where uv >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    echo UV detected! Using UV for package management.
+    set UV_AVAILABLE=true
+    
+    REM Check for mcp package with UV
+    uv pip list | findstr "mcp" >nul 2>nul
+    if %ERRORLEVEL% NEQ 0 (
+        echo Installing mcp package using UV...
+        uv pip install mcp
+        
+        REM Verify installation
+        uv pip list | findstr "mcp" >nul 2>nul
+        if %ERRORLEVEL% NEQ 0 (
+            echo Error: Failed to install mcp package with UV.
+            set UV_AVAILABLE=false
+        ) else (
+            echo Successfully installed mcp package with UV.
+            exit /b 0
+        )
+    ) else (
+        echo MCP package already installed with UV.
+        exit /b 0
+    )
+) else (
+    echo UV not detected. Checking for traditional Python tools...
+    set UV_AVAILABLE=false
+)
+
+REM Check for Python if UV is not available
+where python >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    where py >nul 2>nul
+    if %ERRORLEVEL% NEQ 0 (
+        echo Error: Python is required but not installed.
+        echo Please install Python 3.x to continue.
+        exit /b 1
+    ) else (
+        set PYTHON_CMD=py -3
+        echo Using Python command: py -3
+    )
+) else (
+    set PYTHON_CMD=python
+    echo Using Python command: python
+)
+
+REM Check Python version
+%PYTHON_CMD% -c "import sys; sys.exit(0 if sys.version_info.major >= 3 else 1)" >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo Warning: Python 3.x is recommended. You may encounter issues with older versions.
+)
+
+REM Check for mcp package
+%PYTHON_CMD% -c "import mcp" >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo Warning: 'mcp' package is not installed. Will attempt to install it.
+    
+    REM Try with pip
+    where pip >nul 2>nul
+    if %ERRORLEVEL% EQU 0 (
+        echo Installing mcp package using pip...
+        pip install mcp
+    ) else (
+        REM Try with Python's pip module
+        echo Installing mcp package using Python's pip module...
+        %PYTHON_CMD% -m pip install mcp
+    )
+    
+    REM Verify installation
+    %PYTHON_CMD% -c "import mcp" >nul 2>nul
+    if %ERRORLEVEL% NEQ 0 (
+        echo Error: Failed to install mcp package.
+        echo Please install it manually: pip install mcp
+        exit /b 1
+    )
+    
+    echo Successfully installed mcp package.
+)
+
+exit /b 0
+
+REM --- Function to run MCP checker with fallbacks ---
+:run_mcp_checker
+set output_file=%~1
+set error_log=%~2
+set script_path=%~3
+
+echo Running MCP Checker to extract MCP metadata...
+
+REM Try with UV first (preferred method)
+if "%UV_AVAILABLE%"=="true" (
+    echo Using UV to run MCP checker...
+    
+    REM Try different UV execution methods
+    uv run --with mcp "%script_path%" --output "%output_file%" >nul 2>"%error_log%"
+    if %ERRORLEVEL% EQU 0 (
+        echo Successfully ran MCP checker with UV.
+        exit /b 0
+    )
+    
+    echo Trying alternative UV execution method...
+    uv run "%script_path%" --output "%output_file%" >nul 2>>"%error_log%"
+    if %ERRORLEVEL% EQU 0 (
+        echo Successfully ran MCP checker with alternative UV method.
+        exit /b 0
+    )
+    
+    echo Warning: Failed to run MCP checker with UV. Falling back to direct Python execution.
+)
+
+REM Try direct Python execution
+echo Using %PYTHON_CMD% to run MCP checker...
+%PYTHON_CMD% "%script_path%" --output "%output_file%" >nul 2>>"%error_log%"
+if %ERRORLEVEL% EQU 0 (
+    echo Successfully ran MCP checker with direct Python execution.
+    exit /b 0
+)
+
+REM If we got here, all methods failed
+echo Error: Failed to run MCP checker with all available methods.
+echo Check %error_log% for details.
+exit /b 1
 
 endlocal

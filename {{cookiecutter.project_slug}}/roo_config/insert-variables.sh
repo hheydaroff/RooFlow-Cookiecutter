@@ -13,7 +13,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "Script directory: $SCRIPT_DIR"
 
 # Determine project root and config directory
-PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 CONFIG_DIR="$SCRIPT_DIR"
 
 echo "- Project Root: $PROJECT_ROOT"
@@ -61,30 +61,144 @@ escape_for_sed() {
     echo "$1" | sed 's/[\/&]/\\&/g'
 }
 
-# --- Run MCP Checker to extract MCP metadata ---
-echo "Running MCP Checker to extract MCP metadata..."
-
-# Check if uv is available
-if command -v uv &> /dev/null; then
-    # Run mcp_checker.py using uv run with mcp dependency
-    if uv run --with mcp mcp_checker.py > /tmp/mcp_metadata.md 2>/tmp/mcp_error.log; then
-        echo "MCP metadata extracted successfully and saved to /tmp/mcp_metadata.md"
-        # Display file size and first few lines
-        ls -l /tmp/mcp_metadata.md
-        echo "First few lines of MCP metadata:"
-        head -n 5 /tmp/mcp_metadata.md
-        
-        # Store the content in a variable for later use
-        MCP_CHECKER_OUTPUT=$(cat /tmp/mcp_metadata.md)
+# --- Function to check dependencies ---
+check_dependencies() {
+  echo "Checking dependencies..."
+  
+  # Check for UV first (preferred)
+  if command -v uv &> /dev/null; then
+    echo "UV detected! Using UV for package management."
+    UV_AVAILABLE=true
+    
+    # Check for mcp package with UV
+    if ! uv pip list | grep -q "mcp"; then
+      echo "Installing mcp package using UV..."
+      uv pip install mcp
+      
+      # Verify installation
+      if ! uv pip list | grep -q "mcp"; then
+        echo "Error: Failed to install mcp package with UV."
+        UV_AVAILABLE=false
+      else
+        echo "Successfully installed mcp package with UV."
+        return 0
+      fi
     else
-        echo "Warning: Failed to extract MCP metadata. Check /tmp/mcp_error.log for details."
-        echo "The script will continue, but MCP metadata may not be updated."
-        MCP_CHECKER_OUTPUT=$(cat /tmp/mcp_metadata.md 2>/dev/null || echo "No MCP metadata available")
+      echo "MCP package already installed with UV."
+      return 0
     fi
+  else
+    echo "UV not detected. Checking for traditional Python tools..."
+    UV_AVAILABLE=false
+  fi
+  
+  # Check for Python if UV is not available
+  if ! command -v python3 &> /dev/null && ! command -v python &> /dev/null; then
+    echo "Error: Python is required but not installed."
+    echo "Please install Python 3.x to continue."
+    return 1
+  fi
+  
+  # Determine Python command (python3 or python)
+  if command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+  else
+    PYTHON_CMD="python"
+  fi
+  echo "Using Python command: $PYTHON_CMD"
+  
+  # Check for mcp package
+  if ! $PYTHON_CMD -c "import mcp" &> /dev/null; then
+    echo "Warning: 'mcp' package is not installed. Will attempt to install it."
+    
+    # Try different package managers
+    if command -v pip3 &> /dev/null; then
+      echo "Installing mcp package using pip3..."
+      pip3 install mcp
+    elif command -v pip &> /dev/null; then
+      echo "Installing mcp package using pip..."
+      pip install mcp
+    else
+      echo "Error: pip is not available. Cannot install mcp package."
+      echo "Please install the mcp package manually: pip install mcp"
+      return 1
+    fi
+    
+    # Verify installation
+    if ! $PYTHON_CMD -c "import mcp" &> /dev/null; then
+      echo "Error: Failed to install mcp package."
+      return 1
+    fi
+    
+    echo "Successfully installed mcp package."
+  fi
+  
+  return 0
+}
+
+# --- Function to run MCP checker with UV or fallbacks ---
+run_mcp_checker() {
+  local output_file="$1"
+  local error_log="$2"
+  local script_path="$3"
+  
+  echo "Running MCP Checker to extract MCP metadata..."
+  
+  # Try with UV first (preferred method)
+  if [ "$UV_AVAILABLE" = true ]; then
+    echo "Using UV to run MCP checker..."
+    
+    # Try different UV execution methods
+    if uv run --with mcp "$script_path" --output "$output_file" > /dev/null 2>"$error_log"; then
+      echo "Successfully ran MCP checker with UV."
+      return 0
+    fi
+    
+    echo "Trying alternative UV execution method..."
+    if uv run "$script_path" --output "$output_file" > /dev/null 2>>"$error_log"; then
+      echo "Successfully ran MCP checker with alternative UV method."
+      return 0
+    fi
+    
+    echo "Warning: Failed to run MCP checker with UV. Falling back to direct Python execution."
+  fi
+  
+  # Fallback to direct Python execution
+  echo "Using direct Python execution..."
+  if $PYTHON_CMD "$script_path" --output "$output_file" > /dev/null 2>>"$error_log"; then
+    echo "Successfully ran MCP checker with direct Python execution."
+    return 0
+  fi
+  
+  # If we got here, all methods failed
+  echo "Error: Failed to run MCP checker with all available methods."
+  echo "Check $error_log for details."
+  return 1
+}
+
+# --- Call dependency check ---
+check_dependencies
+UV_AVAILABLE=$?
+
+# --- Set up paths for MCP checker ---
+MCP_CHECKER_SCRIPT="$CONFIG_DIR/mcp_checker.py"
+MCP_OUTPUT_FILE="/tmp/mcp_metadata.md"
+MCP_ERROR_LOG="/tmp/mcp_error.log"
+
+# --- Run MCP checker with fallbacks ---
+if run_mcp_checker "$MCP_OUTPUT_FILE" "$MCP_ERROR_LOG" "$MCP_CHECKER_SCRIPT"; then
+  echo "MCP metadata extracted successfully and saved to $MCP_OUTPUT_FILE"
+  # Display file size and first few lines
+  ls -l "$MCP_OUTPUT_FILE"
+  echo "First few lines of MCP metadata:"
+  head -n 5 "$MCP_OUTPUT_FILE"
+  
+  # Store the content in a variable for later use
+  MCP_CHECKER_OUTPUT=$(cat "$MCP_OUTPUT_FILE")
 else
-    echo "Warning: uv is not available. MCP metadata extraction will be skipped."
-    echo "To extract MCP metadata, please install uv (https://github.com/astral-sh/uv)."
-    MCP_CHECKER_OUTPUT=""
+  echo "Warning: Failed to extract MCP metadata. Check $MCP_ERROR_LOG for details."
+  echo "The script will continue, but MCP metadata may not be updated."
+  MCP_CHECKER_OUTPUT=$(cat "$MCP_OUTPUT_FILE" 2>/dev/null || echo "No MCP metadata available")
 fi
 
 # Define the formatted MCP section
@@ -113,7 +227,8 @@ update_mcp_section() {
         
         # If we have MCP checker output, indent it with 4 spaces and append it under connected_servers
         if [ -n "$checker_output" ]; then
-            echo "Appending MCP checker output to $file (length: ${#checker_output})"
+            checker_length=$(echo "$checker_output" | wc -c)
+            echo "Appending MCP checker output to $file (length: $checker_length)"
             
             # Debug: Show the first few lines of the output
             echo "First 3 lines of MCP checker output:"
@@ -126,28 +241,16 @@ update_mcp_section() {
     fi
 }
 
-# Check for system prompt files in different possible locations
+# Check for system prompt files in the project's roo_config/.roo directory
 echo "Looking for system prompt files..."
 
-# List of possible locations for system prompt files
-POSSIBLE_LOCATIONS=(
-    "$CONFIG_DIR/.roo"
-    "$PROJECT_ROOT/roo_config/.roo"
-    "$PROJECT_ROOT/{{cookiecutter.project_slug}}/roo_config/.roo"
-    "$WORKSPACE/roo_config/.roo"
-)
+# Only look in the project's roo_config/.roo directory
+PROMPT_FILES_DIR="$CONFIG_DIR/.roo"
 
-PROMPT_FILES_DIR=""
-for location in "${POSSIBLE_LOCATIONS[@]}"; do
-    echo "Checking $location"
-    if [ -d "$location" ] && [ "$(ls -A "$location" 2>/dev/null)" ]; then
-        PROMPT_FILES_DIR="$location"
-        echo "Found system prompt files in $PROMPT_FILES_DIR"
-        break
-    fi
-done
-
-if [ -n "$PROMPT_FILES_DIR" ]; then
+echo "Checking $PROMPT_FILES_DIR"
+if [ -d "$PROMPT_FILES_DIR" ] && [ "$(ls -A "$PROMPT_FILES_DIR" 2>/dev/null)" ]; then
+    echo "Found system prompt files in $PROMPT_FILES_DIR"
+    
     # Copy files from found location to .roo
     cp -r "$PROMPT_FILES_DIR"/* "$ROO_DIR/"
     echo "Copied system prompt files from $PROMPT_FILES_DIR to $ROO_DIR"
@@ -176,18 +279,17 @@ if [ -n "$PROMPT_FILES_DIR" ]; then
         echo "Completed: $file"
     done
 else
-    echo "No system prompt files found in any of the expected locations."
+    echo "No system prompt files found in $PROMPT_FILES_DIR"
     
     # List directories to help debug
     echo "Current directory structure:"
     find "$PROJECT_ROOT" -type d -name ".roo" -o -name "roo_config" | sort
     echo
     
-    # Check for default template in different locations
+    # Check for default template in the project
     DEFAULT_TEMPLATE=""
     POSSIBLE_TEMPLATES=(
         "$PROJECT_ROOT/default-system-prompt.md"
-        "$WORKSPACE/default-system-prompt.md"
         "$CONFIG_DIR/default-system-prompt.md"
     )
     
@@ -201,7 +303,22 @@ else
     
     if [ -n "$DEFAULT_TEMPLATE" ]; then
         # Create system prompt files for each mode
-        for mode in advanced-orchestrator architect ask code debug test vibemode; do
+        # Define the list of supported modes
+SUPPORTED_MODES=(
+    "advanced-orchestrator"
+    "architect"
+    "ask"
+    "code"
+    "debug"
+    "test"
+    "vibemode"
+    "junior-reviewer"
+    "senior-reviewer"
+    "documentation-writer"
+)
+
+# Create system prompt files for each mode
+for mode in "${SUPPORTED_MODES[@]}"; do
             output_file="$ROO_DIR/system-prompt-$mode"
             
             sed -e "s/OS_PLACEHOLDER/$(escape_for_sed "$OS")/g" \
