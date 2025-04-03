@@ -48,17 +48,6 @@ uvx cookiecutter gh:hheydaroff/rooflow-cookiecutter
 uvx cookiecutter path/to/rooflow-cookiecutter
 ```
 
-### With pip (fallback)
-
-```bash
-# Install cookiecutter if you haven't already
-pip install cookiecutter
-
-# Create a new project from this template
-cookiecutter gh:hheydaroff/rooflow-cookiecutter
-# or from local template
-cookiecutter path/to/rooflow-cookiecutter
-```
 
 ## Configuration Options
 
