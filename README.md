@@ -156,15 +156,42 @@ The Model Context Protocol (MCP) enables communication with external servers tha
 
 The MCP integration enhances the AI assistant's capabilities by providing access to external tools and resources that can help with specific tasks.
 
-## Mode Configuration
+## Mode Configuration and Customization
 
 The template uses a dynamic approach to mode configuration:
 
 1. The `.roomodes` file defines which modes are available in your project
 2. System prompt files are automatically generated for each mode listed in `.roomodes`
-3. If no `.roomodes` file is found, a minimal set of modes is used (code and ask)
+3. If no `.roomodes` file is found, a minimal set of modes is used (`code` and `ask`)
 
-This approach ensures that your project remains flexible and can adapt to changes in available modes without requiring code modifications. You can simply update your `.roomodes` file to add or remove modes as needed.
+### Adding New Modes
+
+To add new modes to your project:
+
+1. **Edit the `.roomodes` file**:
+   ```
+   # .roomodes - Define available modes for your project
+   code
+   ask
+   architect
+   debug
+   documentation-writer
+   my-custom-mode  # Add your custom mode here
+   ```
+
+2. **Create a system prompt file** for your new mode:
+   - Create a file in the `.roo` directory named `system-prompt-my-custom-mode`
+   - Use the template format from existing system prompt files
+   - Customize the content for your specific mode's needs
+
+3. **Run the environment setup script** to update all system prompts:
+   ```
+   python roo_config/insert_variables.py
+   ```
+
+### Customizing System Prompts
+
+You can customize the system prompts for any mode by editing the corresponding file in the `.roo` directory. Each system prompt file follows a YAML-like format with sections for system information, rules, and MCP configuration. The environment setup script will automatically update these files with your local environment details and MCP metadata while preserving your customizations.
 
 
 ## Why UV?
@@ -202,11 +229,12 @@ To use the memory bank:
 
 You can customize the generated project by:
 
-1. Editing the system prompt files in `.roo/`
-2. Modifying the `.rooignore` file to control what files are included in context
-3. Updating the `.roomodes` file to add or remove modes
-4. Customizing the default mode configuration in `roo_config/default-mode/`
-5. Adding project-specific information to the memory bank
+1. **Adding or removing modes** by updating the `.roomodes` file (see [Mode Configuration and Customization](#mode-configuration-and-customization))
+2. **Customizing system prompts** by editing files in the `.roo/` directory
+3. **Controlling context** by modifying the `.rooignore` file to specify which files should be included or excluded
+4. **Configuring default mode** by editing files in `roo_config/default-mode/` (if enabled)
+5. **Maintaining persistent context** by adding project-specific information to the memory bank
+6. **Running the setup script** (`python roo_config/insert_variables.py`) after making changes to update environment variables and MCP metadata
 
 ## Contributing
 
