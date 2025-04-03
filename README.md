@@ -194,6 +194,17 @@ To add new modes to your project:
 You can customize the system prompts for any mode by editing the corresponding file in the `.roo` directory. Each system prompt file follows a YAML-like format with sections for system information, rules, and MCP configuration. The environment setup script will automatically update these files with your local environment details and MCP metadata while preserving your customizations.
 
 
+## License Selection
+
+The template supports multiple license options:
+
+- **MIT**: A permissive license that allows for reuse with few restrictions
+- **Apache-2.0**: A permissive license with patent protection provisions
+- **GPL-3.0**: A copyleft license that requires derivative works to be open source
+- **BSD-3-Clause**: A permissive license with minimal restrictions
+
+When you create a project, you'll be prompted to choose one of these licenses. The appropriate license text will be automatically included in your project's LICENSE file, with your name and the current year inserted in the copyright notice.
+
 ## Why UV?
 
 UV is a modern Python packaging tool that offers significant advantages:
