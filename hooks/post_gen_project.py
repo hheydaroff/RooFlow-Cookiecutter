@@ -385,49 +385,53 @@ def main():
 
     # Run the appropriate insert-variables script with UV if available
     if platform.system() == 'Windows':
-        if os.path.exists('roo_config/insert-variables.cmd'):
-            logger.info("Running insert-variables.cmd...")
+        # Try the cross-platform script first
+        # Use only the cross-platform Python script
+        if os.path.exists('roo_config/insert_variables.py'):
+            logger.info("Running insert_variables.py...")
             if use_uv:
-                # For Windows, we can't directly use UV to run batch files
-                # So we'll modify the approach to use cmd /c
-                success, output = run_command(['cmd', '/c', 'roo_config/insert-variables.cmd'], 
-                                           "Failed to execute insert-variables.cmd")
+                success, output = run_with_uv(['python', 'roo_config/insert_variables.py'], 
+                                           "Failed to execute insert_variables.py with UV",
+                                           fallback=True)
             else:
-                success, output = run_command(['cmd', '/c', 'roo_config/insert-variables.cmd'], 
-                                           "Failed to execute insert-variables.cmd")
+                success, output = run_command(['python', 'roo_config/insert_variables.py'], 
+                                           "Failed to execute insert_variables.py")
             
             if not success:
-                logger.warning("insert-variables.cmd encountered issues.")
-                logger.warning(output)
+                logger.error("Failed to execute insert_variables.py. Environment variables may not be set correctly.")
+                logger.error(f"Error details: {output}")
             else:
-                logger.info("insert-variables.cmd completed successfully.")
+                logger.info("insert_variables.py completed successfully.")
         else:
-            logger.warning("insert-variables.cmd not found. Environment variables will not be set.")
+            logger.error("insert_variables.py not found. Environment variables will not be set.")
+            logger.info("Please ensure the cross-platform script exists at 'roo_config/insert_variables.py'.")
     else:
-        if os.path.exists('roo_config/insert-variables.sh'):
-            logger.info("Running insert-variables.sh...")
+        # Use only the cross-platform Python script for non-Windows platforms
+        if os.path.exists('roo_config/insert_variables.py'):
+            logger.info("Running insert_variables.py...")
+            # Set execute permissions on the script
             try:
-                os.chmod('roo_config/insert-variables.sh', 0o755)
+                os.chmod('roo_config/insert_variables.py', 0o755)
             except Exception as e:
-                logger.warning(f"Could not set execute permissions on insert-variables.sh: {e}")
+                logger.warning(f"Could not set execute permissions on insert_variables.py: {e}")
                 logger.warning("Attempting to run the script anyway...")
             
             if use_uv:
-                # For shell scripts, we can try to run with UV
-                success, output = run_with_uv(['./roo_config/insert-variables.sh'], 
-                                           "Failed to execute insert-variables.sh with UV",
+                success, output = run_with_uv(['python3', 'roo_config/insert_variables.py'], 
+                                           "Failed to execute insert_variables.py with UV",
                                            fallback=True)
             else:
-                success, output = run_command(['./roo_config/insert-variables.sh'], 
-                                           "Failed to execute insert-variables.sh")
+                success, output = run_command(['python3', 'roo_config/insert_variables.py'], 
+                                           "Failed to execute insert_variables.py")
             
             if not success:
-                logger.warning("insert-variables.sh encountered issues.")
-                logger.warning(output)
+                logger.error("Failed to execute insert_variables.py. Environment variables may not be set correctly.")
+                logger.error(f"Error details: {output}")
             else:
-                logger.info("insert-variables.sh completed successfully.")
+                logger.info("insert_variables.py completed successfully.")
         else:
-            logger.warning("insert-variables.sh not found. Environment variables will not be set.")
+            logger.error("insert_variables.py not found. Environment variables will not be set.")
+            logger.info("Please ensure the cross-platform script exists at 'roo_config/insert_variables.py'.")
 
     # Create memory-bank directory and templates if selected
     include_memory_bank = '{{ cookiecutter.include_memory_bank_templates }}' == 'yes'

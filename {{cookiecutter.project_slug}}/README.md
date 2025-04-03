@@ -19,9 +19,10 @@ This project uses RooFlow for persistent project context and optimized mode inte
 ### Setup
 
 1. Clone this repository
-2. Run the appropriate script to set up your environment:
-   - Windows: `config/insert-variables.cmd`
-   - Unix/Mac: `config/insert-variables.sh`
+2. Run the script to set up your environment:
+   - Cross-platform (recommended): `roo_config/insert_variables.py`
+   - Windows (legacy): `roo_config/insert-variables.cmd`
+   - Unix/Mac (legacy): `roo_config/insert-variables.sh`
 
 This will configure the system prompts with your local environment details.
 
@@ -61,10 +62,12 @@ This will create a virtual environment and install the required dependencies.
 ├── .roo/                  # System prompt files for different modes
 ├── .rooignore             # Files to ignore in context
 ├── .roomodes              # Mode configuration
-├── config/                # Configuration files
-│   ├── insert-variables.cmd  # Windows script to set environment variables
-│   ├── insert-variables.sh   # Unix script to set environment variables
-│   └── default-mode/      # Default mode configuration (if enabled)
+├── roo_config/            # Configuration files
+│   ├── insert_variables.py   # Cross-platform script to set environment variables
+│   ├── insert-variables.cmd  # Windows script (legacy)
+│   ├── insert-variables.sh   # Unix script (legacy)
+│   ├── mcp_checker.py        # MCP metadata extractor
+│   └── default-mode/         # Default mode configuration (if enabled)
 {% if cookiecutter.include_memory_bank_templates == 'yes' %}
 ├── memory-bank/           # Memory bank templates for persistent context
 {% endif %}
