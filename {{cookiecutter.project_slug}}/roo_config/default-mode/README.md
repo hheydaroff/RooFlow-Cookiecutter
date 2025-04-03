@@ -14,8 +14,10 @@ To use the default mode:
 
 1. Make sure the `.roomodes` file in the project root includes a reference to this mode
 2. Customize the role definition and instructions as needed
-3. Run the appropriate insert-variables script to update environment variables
+3. Run the `insert_variables.py` script to update environment variables (or use the platform-specific scripts `insert-variables.cmd` or `insert-variables.sh` for backward compatibility)
 
 ## Customization
 
 You can customize the default mode by editing the files in this directory. The role definition should describe the primary purpose and capabilities of the mode, while the custom instructions should provide specific guidance on how the mode should operate.
+
+For more information about the environment setup scripts, see the README.md in the parent directory.

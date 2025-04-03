@@ -6,6 +6,6 @@
   "author_email": "your.email@example.com",
   "license": ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause"],
   "include_default_mode": ["yes", "no"],
-  "include_memory_bank_templates": ["yes", "no"],
-  "use_uv": ["no", "yes"]
+  "include_memory_bank_templates": ["yes"],
+  "use_uv": ["yes"]
 }
