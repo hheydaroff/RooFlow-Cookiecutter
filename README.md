@@ -13,7 +13,7 @@ A [Cookiecutter](https://github.com/cookiecutter/cookiecutter) template for crea
 
 - Remember previous conversations and decisions
 - Access project-specific knowledge and configurations
-- Adapt to different development modes (coding, architecture planning, debugging, etc.)
+- Adapt to different development modes defined in your project
 - Provide more consistent and relevant assistance
 
 This template provides everything you need to quickly set up a new project with RooFlow integration and modern Python tooling via UV.
@@ -22,8 +22,10 @@ This template provides everything you need to quickly set up a new project with 
 
 - **UV-first approach** with automatic fallbacks for compatibility
 - **Configurable project structure** with RooFlow integration
-- **System prompts** for different AI assistant modes (code, architect, ask, debug, test)
-- **Environment variable setup scripts** for Windows and Unix/Mac
+- **Dynamic mode detection** from your project's .roomodes file
+- **System prompts** for all your defined AI assistant modes
+- **Cross-platform environment setup** with a single Python script
+- **MCP metadata extraction** for enhanced AI capabilities
 - **Optional default mode configuration** for customized AI assistance
 - **Optional memory bank templates** for persistent context
 - **Comprehensive documentation** for easy setup and customization
@@ -73,11 +75,10 @@ The generated project will have this structure:
 ```
 my-rooflow-project/
 ├── .roo/                  # System prompt files for different modes
-├── .rooignore             # Files to ignore in context
+├── .rooignore             # Files to ignore in context 
 ├── .roomodes              # Mode configuration
 ├── roo_config/            # Configuration files
-│   ├── insert-variables.cmd  # Windows script to set environment variables
-│   ├── insert-variables.sh   # Unix script to set environment variables
+│   ├── insert_variables.py  # Cross-platform script to set environment variables
 │   ├── mcp_checker.py     # Script to extract MCP metadata
 │   └── default-mode/      # Default mode configuration (if enabled)
 │       ├── cline_custom_modes.json  # Custom modes configuration
@@ -107,11 +108,24 @@ my-rooflow-project/
 After generating the project:
 
 1. Navigate to your new project directory
-2. Run the appropriate script to set up your environment:
-   - Windows: `roo_config/insert-variables.cmd`
-   - Unix/Mac: `roo_config/insert-variables.sh`
+2. Run the cross-platform environment setup script:
+   ```
+   python roo_config/insert_variables.py
+   ```
+   
+   You can add the `--verbose` flag for more detailed output:
+   ```
+   python roo_config/insert_variables.py --verbose
+   ```
 
-This will configure the system prompts with your local environment details and extract MCP metadata using UV.
+This script will:
+- Configure the system prompts with your local environment details
+- Install the MCP package if needed (using UV when available)
+- Extract MCP metadata from connected servers
+- Update system prompt files with the extracted metadata
+- Dynamically detect modes from your .roomodes file
+
+The script automatically detects your operating system and sets the appropriate paths, making it work seamlessly across Windows, macOS, and Linux.
 
 ### UV Setup
 
@@ -130,6 +144,28 @@ This template is designed with a UV-first approach:
 - Automatic fallbacks to traditional tools ensure compatibility
 - Default configuration files are set up for optimal UV usage
 - Requirements are automatically installed via UV when detected
+
+## MCP Integration
+
+The Model Context Protocol (MCP) enables communication with external servers that provide additional tools and resources. This template includes:
+
+- `mcp_checker.py`: A script that connects to MCP servers, extracts metadata about their tools and resources, and formats this information for use in system prompts
+- Automatic MCP metadata extraction during setup
+- Integration of MCP server information into system prompts
+- Support for both local (Stdio-based) and remote (SSE-based) MCP servers
+
+The MCP integration enhances the AI assistant's capabilities by providing access to external tools and resources that can help with specific tasks.
+
+## Mode Configuration
+
+The template uses a dynamic approach to mode configuration:
+
+1. The `.roomodes` file defines which modes are available in your project
+2. System prompt files are automatically generated for each mode listed in `.roomodes`
+3. If no `.roomodes` file is found, a minimal set of modes is used (code and ask)
+
+This approach ensures that your project remains flexible and can adapt to changes in available modes without requiring code modifications. You can simply update your `.roomodes` file to add or remove modes as needed.
+
 
 ## Why UV?
 

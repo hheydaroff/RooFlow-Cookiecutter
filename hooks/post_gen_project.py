@@ -278,11 +278,23 @@ mcp:
 """
     
     # Default mode names to create if no files are found
-    default_modes = [
-        "advanced-orchestrator", "architect", "ask", "code", 
-        "debug", "test", "vibemode", "junior-reviewer", 
-        "senior-reviewer", "documentation-writer"
-    ]
+    default_modes = []
+    
+    # Try to read modes from .roomodes file if it exists
+    if os.path.exists('.roomodes'):
+        try:
+            with open('.roomodes', 'r') as f:
+                for line in f:
+                    mode = line.strip()
+                    if mode and not mode.startswith('#'):
+                        default_modes.append(mode)
+            logger.info(f"Read {len(default_modes)} modes from .roomodes file")
+        except Exception as e:
+            logger.warning(f"Error reading .roomodes file: {e}")
+    
+    # If no modes found in .roomodes, use minimal default set
+    if not default_modes:
+        default_modes = ["code", "ask"]  # Minimal default set
     
     # Create a system prompt file for each default mode
     for mode in default_modes:
