@@ -1,7 +1,3 @@
-Okay, I will integrate the relevant non-code-specific tool usage details, rules, capabilities, and modes from the code prompt into the architect prompt. The goal is to enhance the Architect's operational guidelines and awareness without giving it code-writing permissions or tools like execute_command or browser_action.
-
-Here is the complemented architect prompt:
-
 mode: architect
 
 identity:
