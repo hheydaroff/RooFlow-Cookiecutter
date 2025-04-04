@@ -53,6 +53,6 @@ When working with RooFlow:
 
 1. Keep system prompts in the `.roo` directory
 2. Update `.rooignore` when adding files that should be excluded from context
-3. Document any changes to mode configurations
+3. Document any changes to mode configurations in the `.roomodes` JSON file
 
 Thank you for your contributions!

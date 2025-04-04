@@ -410,11 +410,22 @@ def process_system_prompt_files(roo_dir, config_dir, system_info, mcp_metadata):
             if roomodes_path.exists():
                 try:
                     with open(roomodes_path, 'r', encoding='utf-8') as f:
-                        for line in f:
-                            mode = line.strip()
-                            if mode and not mode.startswith('#'):
-                                supported_modes.append(mode)
-                    logging.info(f"Read {len(supported_modes)} modes from .roomodes file")
+                        try:
+                            # Try to parse as JSON first (new format)
+                            roomodes_data = json.load(f)
+                            if "customModes" in roomodes_data:
+                                for mode in roomodes_data["customModes"]:
+                                    if "slug" in mode:
+                                        supported_modes.append(mode["slug"])
+                            logging.info(f"Read {len(supported_modes)} modes from .roomodes JSON file")
+                        except json.JSONDecodeError:
+                            # Fallback to old format (one mode per line)
+                            f.seek(0)  # Reset file pointer to beginning
+                            for line in f:
+                                mode = line.strip()
+                                if mode and not mode.startswith('#'):
+                                    supported_modes.append(mode)
+                            logging.info(f"Read {len(supported_modes)} modes from .roomodes text file")
                 except Exception as e:
                     logging.warning(f"Error reading .roomodes file: {e}")
             

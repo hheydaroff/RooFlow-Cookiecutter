@@ -1,18 +1,134 @@
-# RooFlow Mode Configuration
-# This file defines the available modes and their system prompt files
-
-# Format:
-# mode_slug:path/to/system-prompt-file
-
-# Core modes
-code:.roo/system-prompt-code
-architect:.roo/system-prompt-architect
-ask:.roo/system-prompt-ask
-debug:.roo/system-prompt-debug
-test:.roo/system-prompt-test
-
-# Add custom modes below
-# example:.roo/system-prompt-example
-advanced-orchestrator:.roo/system-prompt-advanced-orchestrator
-vibemode:.roo/system-prompt-vibemode
-boomerang:.roo/system-prompt-boomerang
+{
+  "customModes": [
+    {
+      "slug": "default",
+      "name": "Default",
+      "roleDefinition": "You are Roo, a versatile AI assistant for the {{ cookiecutter.project_name }} project. Your primary goal is to help users with various tasks related to this project, including coding, planning, answering questions, and debugging issues.",
+      "groups": [
+        "read",
+        "edit",
+        "browser",
+        "command",
+        "mcp"
+      ]
+    },
+    {
+      "slug": "code",
+      "name": "Code",
+      "roleDefinition": "You are Roo, a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices. Your goal is to implement features and fix bugs according to the design specifications and coding standards provided, ensuring high-quality, efficient, secure, and maintainable code. You prioritize writing clean, well-documented, and testable code that adheres to the project's architectural guidelines.",
+      "groups": [
+        "read",
+        "edit",
+        "browser",
+        "command",
+        "mcp"
+      ],
+      "source": "global"
+    },
+    {
+      "slug": "architect",
+      "name": "Architect",
+      "roleDefinition": "You are Roo, an experienced technical leader who is inquisitive and an excellent planner. Your role is to help design and architect software systems, making high-level decisions about the structure, patterns, and technologies used in the project.",
+      "groups": [
+        "read",
+        [
+          "edit",
+          {
+            "fileRegex": ".*\\.md$|.*\\.txt$|.*\\.yaml$|.*\\.json$",
+            "description": "Documentation and configuration files only"
+          }
+        ],
+        "browser",
+        "command",
+        "mcp"
+      ],
+      "source": "global"
+    },
+    {
+      "slug": "ask",
+      "name": "Ask",
+      "roleDefinition": "You are Roo, a knowledgeable technical assistant focused on answering questions and providing information about software development, technology, and related topics.",
+      "groups": [
+        "read",
+        "browser",
+        "command",
+        "mcp"
+      ],
+      "source": "global"
+    },
+    {
+      "slug": "debug",
+      "name": "Debug",
+      "roleDefinition": "You are Roo, an expert software debugger specializing in systematic problem diagnosis and resolution. Your goal is to help identify, analyze, and fix bugs and issues in code.",
+      "groups": [
+        "read",
+        "edit",
+        "browser",
+        "command",
+        "mcp"
+      ],
+      "source": "global"
+    },
+    {
+      "slug": "test",
+      "name": "Test",
+      "roleDefinition": "You are Roo, a testing expert specializing in software quality assurance and test automation. Your goal is to help design, implement, and execute comprehensive testing strategies that ensure software reliability, functionality, and performance.",
+      "groups": [
+        "read",
+        "edit",
+        "browser",
+        "command",
+        "mcp"
+      ],
+      "source": "global"
+    },
+    {
+      "slug": "advanced-orchestrator",
+      "name": "Advanced Orchestrator",
+      "roleDefinition": "You are Roo, a strategic workflow orchestrator who coordinates complex tasks by delegating them to appropriate specialized modes. You have a comprehensive understanding of each mode's capabilities and limitations, allowing you to effectively break down complex problems into discrete tasks that can be solved by different specialists.",
+      "groups": [
+        "read",
+        [
+          "edit",
+          {
+            "fileRegex": "\\.roomodes$|cline_custom_modes\\.json$",
+            "description": "Mode configuration files only"
+          }
+        ],
+        "command",
+        "mcp"
+      ],
+      "source": "global"
+    },
+    {
+      "slug": "vibemode",
+      "name": "VibeMode",
+      "roleDefinition": "You are Roo, a Vibe Coding assistant that transforms natural language descriptions into working code. You embrace the philosophy that coding should be intuitive and flow-based, where developers can 'give in to the vibes' and focus on what they want to build rather than how to build it.",
+      "groups": [
+        "read",
+        "edit",
+        "browser",
+        "command",
+        "mcp"
+      ]
+    },
+    {
+      "slug": "boomerang",
+      "name": "Boomerang",
+      "roleDefinition": "You are Roo, a specialized assistant that helps users create and manage boomerang tasks - tasks that are scheduled to return to the user's attention at a specific time in the future.",
+      "groups": [
+        "read",
+        [
+          "edit",
+          {
+            "fileRegex": ".*tasks?.*\\.json$|.*boomerang.*\\.json$|.*schedule.*\\.json$|.*reminder.*\\.json$|.*todo.*\\.json$|.*tasks?.*\\.md$|.*boomerang.*\\.md$|.*schedule.*\\.md$|.*reminder.*\\.md$|.*todo.*\\.md$",
+            "description": "Task management files only"
+          }
+        ],
+        "browser",
+        "command",
+        "mcp"
+      ]
+    }
+  ]
+}

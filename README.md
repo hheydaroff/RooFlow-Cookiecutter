@@ -75,8 +75,8 @@ The generated project will have this structure:
 ```
 my-rooflow-project/
 ├── .roo/                  # System prompt files for different modes
-├── .rooignore             # Files to ignore in context 
-├── .roomodes              # Mode configuration
+├── .rooignore             # Files to ignore in context
+├── .roomodes              # Mode configuration (JSON format with detailed mode information)
 ├── roo_config/            # Configuration files
 │   ├── insert_variables.py  # Cross-platform script to set environment variables
 │   ├── mcp_checker.py     # Script to extract MCP metadata
@@ -160,23 +160,45 @@ The MCP integration enhances the AI assistant's capabilities by providing access
 
 The template uses a dynamic approach to mode configuration:
 
-1. The `.roomodes` file defines which modes are available in your project
-2. System prompt files are automatically generated for each mode listed in `.roomodes`
+1. The `.roomodes` file defines which modes are available in your project using a JSON format with detailed information about each mode
+2. System prompt files are automatically generated for each mode defined in `.roomodes`
 3. If no `.roomodes` file is found, a minimal set of modes is used (`code` and `ask`)
 
 ### Adding New Modes
 
 To add new modes to your project:
 
-1. **Edit the `.roomodes` file**:
-   ```
-   # .roomodes - Define available modes for your project
-   code
-   ask
-   architect
-   debug
-   documentation-writer
-   my-custom-mode  # Add your custom mode here
+1. **Edit the `.roomodes` file** which now uses a JSON format with detailed mode information:
+   ```json
+   {
+     "customModes": [
+       {
+         "slug": "code",
+         "name": "Code",
+         "roleDefinition": "You are Roo, a highly skilled software engineer...",
+         "groups": [
+           "read",
+           "edit",
+           "browser",
+           "command",
+           "mcp"
+         ],
+         "source": "global"
+       },
+       {
+         "slug": "my-custom-mode",
+         "name": "My Custom Mode",
+         "roleDefinition": "You are Roo, a specialized assistant that...",
+         "groups": [
+           "read",
+           "edit",
+           "browser",
+           "command",
+           "mcp"
+         ]
+       }
+     ]
+   }
    ```
 
 2. **Create a system prompt file** for your new mode:
@@ -190,8 +212,35 @@ To add new modes to your project:
    ```
 
 ### Customizing System Prompts
-
 You can customize the system prompts for any mode by editing the corresponding file in the `.roo` directory. Each system prompt file follows a YAML-like format with sections for system information, rules, and MCP configuration. The environment setup script will automatically update these files with your local environment details and MCP metadata while preserving your customizations.
+
+### Mode Permission Groups
+
+Each mode in the `.roomodes` file can have specific permission groups that control what actions the AI assistant can perform:
+
+- **read**: Allows reading files
+- **edit**: Allows editing files (can be restricted to specific file patterns)
+- **browser**: Allows browser interactions
+- **command**: Allows executing commands
+- **mcp**: Allows using MCP tools and resources
+
+Example of restricted edit permissions:
+```json
+"groups": [
+  "read",
+  [
+    "edit",
+    {
+      "fileRegex": ".*\\.md$|.*\\.txt$",
+      "description": "Documentation files only"
+    }
+  ],
+  "browser",
+  "command",
+  "mcp"
+]
+```
+
 
 
 ## License Selection
@@ -240,7 +289,7 @@ To use the memory bank:
 
 You can customize the generated project by:
 
-1. **Adding or removing modes** by updating the `.roomodes` file (see [Mode Configuration and Customization](#mode-configuration-and-customization))
+1. **Adding or removing modes** by updating the `.roomodes` JSON file (see [Mode Configuration and Customization](#mode-configuration-and-customization))
 2. **Customizing system prompts** by editing files in the `.roo/` directory
 3. **Controlling context** by modifying the `.rooignore` file to specify which files should be included or excluded
 4. **Configuring default mode** by editing files in `roo_config/default-mode/` (if enabled)

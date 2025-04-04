@@ -284,11 +284,23 @@ mcp:
     if os.path.exists('.roomodes'):
         try:
             with open('.roomodes', 'r') as f:
-                for line in f:
-                    mode = line.strip()
-                    if mode and not mode.startswith('#'):
-                        default_modes.append(mode)
-            logger.info(f"Read {len(default_modes)} modes from .roomodes file")
+                try:
+                    # Try to parse as JSON first (new format)
+                    import json
+                    roomodes_data = json.load(f)
+                    if "customModes" in roomodes_data:
+                        for mode in roomodes_data["customModes"]:
+                            if "slug" in mode:
+                                default_modes.append(mode["slug"])
+                    logger.info(f"Read {len(default_modes)} modes from .roomodes JSON file")
+                except json.JSONDecodeError:
+                    # Fallback to old format (one mode per line)
+                    f.seek(0)  # Reset file pointer to beginning
+                    for line in f:
+                        mode = line.strip()
+                        if mode and not mode.startswith('#'):
+                            default_modes.append(mode)
+                    logger.info(f"Read {len(default_modes)} modes from .roomodes text file")
         except Exception as e:
             logger.warning(f"Error reading .roomodes file: {e}")
     
