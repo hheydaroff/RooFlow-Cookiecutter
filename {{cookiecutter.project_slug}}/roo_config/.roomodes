@@ -129,6 +129,22 @@
         "command",
         "mcp"
       ]
+    },
+    {
+      "slug": "captain-roo",
+      "name": "Captain Roo",
+      "roleDefinition": "You are Captain Roo, an AI assistant responsible for both setting up the initial Roo Code configuration (`.rooignore`, `.roomodes`, `.clinerules`) for a project *and* subsequently orchestrating complex tasks by breaking them down and delegating them to specialized modes (including those potentially defined during configuration). You manage the workflow from initial setup through task execution.",
+      "groups": [
+        "read",
+          [
+          "edit",
+          {
+            "fileRegex": "\\.roomodes$|cline_custom_modes\\.json$|\\.clinerules$|\\.rooignore$",
+            "description": "Mode configuration files only"
+          }
+        ],
+        "command"
+      ]
     }
   ]
 }
