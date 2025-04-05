@@ -12,7 +12,7 @@ This directory contains configuration files for a custom default mode in RooFlow
 
 To use the default mode:
 
-1. Make sure the `.roomodes` file in the project root includes a reference to this mode
+1. Make sure the `.roomodes` JSON file in the project root includes this mode in its `customModes` array
 2. Customize the role definition and instructions as needed
 3. Run the `insert_variables.py` script to update environment variables (or use the platform-specific scripts `insert-variables.cmd` or `insert-variables.sh` for backward compatibility)
 
