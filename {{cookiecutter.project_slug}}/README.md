@@ -61,7 +61,7 @@ This will create a virtual environment and install the required dependencies.
 {{ cookiecutter.project_slug }}/
 ├── .roo/                  # System prompt files for different modes
 ├── .rooignore             # Files to ignore in context
-├── .roomodes              # Mode configuration
+├── .roomodes              # Mode configuration (JSON format with detailed mode information)
 ├── roo_config/            # Configuration files
 │   ├── insert_variables.py   # Cross-platform script to set environment variables
 │   ├── insert-variables.cmd  # Windows script (legacy)
