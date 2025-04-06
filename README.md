@@ -257,6 +257,7 @@ Example of restricted edit permissions:
   "command",
   "mcp"
 ]
+```
 
 ## Captain Roo Mode
 
