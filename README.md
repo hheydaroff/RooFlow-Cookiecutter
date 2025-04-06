@@ -14,20 +14,22 @@ A [Cookiecutter](https://github.com/cookiecutter/cookiecutter) template for crea
 - Remember previous conversations and decisions
 - Access project-specific knowledge and configurations
 - Adapt to different development modes defined in your project
+- Orchestrate complex tasks across specialized modes with Captain Roo
 - Provide more consistent and relevant assistance
 
 This template provides everything you need to quickly set up a new project with RooFlow integration and modern Python tooling via UV.
 
 ## Features
-
 - **UV-first approach** with automatic fallbacks for compatibility
 - **Configurable project structure** with RooFlow integration
 - **Dynamic mode detection** from your project's .roomodes file
 - **System prompts** for all your defined AI assistant modes
+- **Captain Roo mode** for orchestrating complex tasks and managing workflows across modes
 - **Cross-platform environment setup** with a single Python script
 - **MCP metadata extraction** for enhanced AI capabilities
 - **Optional default mode configuration** for customized AI assistance
 - **Optional memory bank templates** for persistent context
+- **Comprehensive documentation** for easy setup and customization
 - **Comprehensive documentation** for easy setup and customization
 
 ## Requirements
@@ -186,6 +188,22 @@ To add new modes to your project:
          "source": "global"
        },
        {
+         "slug": "captain-roo",
+         "name": "Captain Roo",
+         "roleDefinition": "You are Captain Roo, an AI assistant responsible for both setting up the initial Roo Code configuration and orchestrating complex tasks...",
+         "groups": [
+           "read",
+           [
+             "edit",
+             {
+               "fileRegex": "\\.roomodes$|cline_custom_modes\\.json$|\\.clinerules$|\\.rooignore$",
+               "description": "Mode configuration files only"
+             }
+           ],
+           "command"
+         ]
+       },
+       {
          "slug": "my-custom-mode",
          "name": "My Custom Mode",
          "roleDefinition": "You are Roo, a specialized assistant that...",
@@ -239,6 +257,36 @@ Example of restricted edit permissions:
   "command",
   "mcp"
 ]
+
+## Captain Roo Mode
+
+The template includes a powerful "Captain Roo" mode that serves as a team lead for your project:
+
+- **Role**: Captain Roo is responsible for both setting up the initial Roo Code configuration (`.rooignore`, `.roomodes`, `.clinerules`) for a project *and* subsequently orchestrating complex tasks by breaking them down and delegating them to specialized modes.
+
+- **Capabilities**:
+  - Creates and manages custom modes in the `.roomodes` file
+  - Orchestrates workflows across different modes based on task requirements
+  - Breaks down complex tasks into smaller, manageable pieces
+  - Delegates specific tasks to the most appropriate specialized modes
+  - Manages the entire workflow from initial setup through task execution
+
+- **Permissions**: Captain Roo has restricted edit permissions, only allowing modifications to configuration files:
+  ```json
+  "groups": [
+    "read",
+    [
+      "edit",
+      {
+        "fileRegex": "\\.roomodes$|cline_custom_modes\\.json$|\\.clinerules$|\\.rooignore$",
+        "description": "Mode configuration files only"
+      }
+    ],
+    "command"
+  ]
+  ```
+
+- **Usage**: When you have a complex task that requires coordination across multiple modes or specialized expertise, switch to Captain Roo mode. It will help organize the work, create any necessary custom modes, and orchestrate the execution of the task across these modes.
 ```
 
 
